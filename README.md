@@ -4,9 +4,14 @@ Minimal machine learning built on the [linalg](https://github.com/kizdude/linalg
 C library, called from Python through the
 [linalg-py](https://github.com/kizdude/linalg-py) ctypes bindings.
 
-The first model is **multivariate linear regression** solved by the normal
-equation `(Xᵀ X) w = Xᵀ y` — every matrix operation runs through the C library
-(`@`, `.T`, `.solve()`), not numpy.
+It provides:
+
+- **`LinearRegression`** — least squares by the normal equation `(Xᵀ X) w = Xᵀ y`.
+- **`GDRegressor`** — the same fit by batch gradient descent (iterative).
+- **`polynomial_features`** — expand a feature into powers so a linear model fits curves.
+
+Every matrix operation (`@`, `.T`, `.solve()`, `+`, scalar `*`) runs through the C
+library, not numpy.
 
 ## Setup
 
@@ -32,25 +37,35 @@ python -m venv .venv
 ## Use
 
 ```python
-from linalgml import LinearRegression
+from linalgml import LinearRegression, GDRegressor, polynomial_features
 
-model = LinearRegression().fit(X, y)   # X: (n, d) array, y: (n,) array
+# closed-form fit
+model = LinearRegression().fit(X, y)        # X: (n, d), y: (n,)
 print(model.coef_, model.intercept_)
-preds = model.predict(X)
+
+# gradient descent
+gd = GDRegressor(lr=0.1, n_iters=2000).fit(X, y)
+
+# polynomial curve fitting (one feature)
+poly = LinearRegression().fit(polynomial_features(x, degree=3), y)
 ```
 
-## Demo & tests
+## Demos & tests
 
 ```sh
-.venv/Scripts/python examples/regression_demo.py   # fits synthetic data, plots fit
-.venv/Scripts/python -m pytest                      # cross-checked against numpy
+.venv/Scripts/python examples/regression_demo.py   # multivariate fit, predicted-vs-actual
+.venv/Scripts/python examples/poly_demo.py         # degree-3 curve fit
+.venv/Scripts/python examples/gd_demo.py           # GD convergence across learning rates
+.venv/Scripts/python -m pytest                     # cross-checked against numpy
 ```
 
 ## Layout
 
 ```
-linalgml/linreg.py   LinearRegression (normal equation via linalgpy.Matrix)
-examples/            regression_demo.py
-tests/               pytest suite (cross-checked against numpy)
-external/linalg-py   the ctypes bindings (git submodule; contains linalg)
+linalgml/linreg.py    LinearRegression (normal equation)
+linalgml/gd.py        GDRegressor (gradient descent)
+linalgml/features.py  polynomial_features, design_matrix
+examples/             regression_demo.py, poly_demo.py, gd_demo.py
+tests/                pytest suite (cross-checked against numpy)
+external/linalg-py    the ctypes bindings (git submodule; contains linalg)
 ```
