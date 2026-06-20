@@ -4,6 +4,16 @@ from __future__ import annotations
 import numpy as np
 
 
+def design_matrix(X, fit_intercept: bool = True) -> np.ndarray:
+    """Coerce X to a 2-D float array, prepending a column of 1s if fit_intercept."""
+    X = np.asarray(X, dtype=float)
+    if X.ndim == 1:
+        X = X.reshape(-1, 1)
+    if fit_intercept:
+        X = np.hstack([np.ones((X.shape[0], 1)), X])
+    return X
+
+
 def polynomial_features(x, degree: int) -> np.ndarray:
     """Expand a single feature into polynomial columns.
 

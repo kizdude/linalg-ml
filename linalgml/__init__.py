@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from .linreg import LinearRegression
+from .gd import GDRegressor
 from .features import polynomial_features
 
-__all__ = ["LinearRegression", "polynomial_features"]
+__all__ = ["LinearRegression", "GDRegressor", "polynomial_features"]
