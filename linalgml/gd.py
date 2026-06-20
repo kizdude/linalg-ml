@@ -45,7 +45,7 @@ class GDRegressor:
             w = w - grad * self.lr
             MSE = np.mean(resid.to_numpy() ** 2)
             self.loss_history.append(MSE)
-            
+    
         self.weights = w
         wn = w.to_numpy().flatten()
         self.intercept_ = wn[0]
