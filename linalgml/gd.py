@@ -31,25 +31,27 @@ class GDRegressor:
         self.loss_history: list[float] = []
 
     def fit(self, X, y) -> "GDRegressor":
-        """Minimize MSE by gradient descent.
+        """Minimize MSE by gradient descent."""
+        Xm = Matrix.from_numpy(design_matrix(X, self.fit_intercept))
+        ym = Matrix.from_numpy(np.asarray(y, float).reshape(-1, 1))
+        n = Xm.rows
+        p = Xm.cols
+        w = Matrix.zeros(p, 1)
 
-        TODO (you implement, using the Matrix API):
-          - Xm = Matrix.from_numpy(design_matrix(X, self.fit_intercept))   # (n, p)
-          - ym = Matrix.from_numpy(np.asarray(y, float).reshape(-1, 1))    # (n, 1)
-          - n = number of samples; p = number of columns of the design matrix
-          - initialise weights w = Matrix.zeros(p, 1)
-          - repeat n_iters times:
-              pred = Xm @ w
-              resid = pred - ym                       # (n, 1)
-              grad  = (Xm.T @ resid) * (2.0 / n)      # (p, 1)
-              w     = w - grad * self.lr
-              append the MSE to self.loss_history each iter (a test checks it falls)
-              MSE = mean of resid^2; resid.to_numpy() then numpy mean is easiest
-          - store self.weights = w, then split into intercept_ / coef_
-            (same split logic as LinearRegression)
-        Return self.
-        """
-        raise NotImplementedError
+        for _ in range(self.n_iters):
+            pred = Xm @ w
+            resid = pred - ym
+            grad = (Xm.T @ resid) * (2.0 / n)
+            w = w - grad * self.lr
+            MSE = np.mean(resid.to_numpy() ** 2)
+            self.loss_history.append(MSE)
+            
+        self.weights = w
+        wn = w.to_numpy().flatten()
+        self.intercept_ = wn[0]
+        self.coef_ = wn[1:]
+
+        return self
 
     def predict(self, X) -> np.ndarray:
         Xm = Matrix.from_numpy(design_matrix(X, self.fit_intercept))
