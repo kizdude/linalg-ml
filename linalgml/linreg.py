@@ -1,0 +1,67 @@
+"""Multivariate linear regression via the normal equation.
+
+The math runs through linalgpy.Matrix (your C library), not numpy: we form the
+design matrix, then solve the normal equation
+
+    (Xᵀ X) w = Xᵀ y
+
+for the weight vector w. numpy is used only to shuttle data in and out.
+"""
+from __future__ import annotations
+
+import numpy as np
+
+from linalgpy import Matrix
+
+
+class LinearRegression:
+    """Ordinary least squares fit by the normal equation.
+
+    After fit():
+      - self.weights   : Matrix, shape (d[+1], 1) — full weight vector
+      - self.coef_     : numpy array of the feature weights
+      - self.intercept_: float (0.0 if fit_intercept=False)
+    """
+
+    def __init__(self, fit_intercept: bool = True):
+        self.fit_intercept = fit_intercept
+        self.weights: Matrix | None = None
+        self.coef_: np.ndarray | None = None
+        self.intercept_: float = 0.0
+
+    # --- plumbing: build the design matrix (numpy), prepend a bias column ---
+    def _design(self, X) -> np.ndarray:
+        """X (n_samples, n_features) -> design matrix, with a leading column of
+        1s if fit_intercept (so the first weight is the intercept)."""
+        X = np.asarray(X, dtype=float)
+        if X.ndim == 1:
+            X = X.reshape(-1, 1)
+        if self.fit_intercept:
+            ones = np.ones((X.shape[0], 1))
+            X = np.hstack([ones, X])
+        return X
+
+    # --- the part you implement: solve the normal equation with Matrix ---
+    def fit(self, X, y) -> "LinearRegression":
+        """Fit weights solving (Xᵀ X) w = Xᵀ y.
+
+        TODO (use the Matrix binding):
+          - Xd = self._design(X)                  # numpy design matrix
+          - y2 = np.asarray(y, float).reshape(-1, 1)
+          - wrap both as Matrix (Matrix.from_numpy)
+          - Xt = X.T;  XtX = Xt @ X;  Xty = Xt @ y
+          - solve XtX w = Xty   (use XtX.solve(Xty) — more stable than inverse)
+          - store self.weights, and split into self.intercept_ / self.coef_
+        Return self.
+        """
+        raise NotImplementedError
+
+    def predict(self, X) -> np.ndarray:
+        """Return predictions X·w as a 1-D numpy array.
+
+        TODO:
+          - build the design matrix the same way as in fit()
+          - wrap as Matrix, multiply by self.weights
+          - return .to_numpy() flattened to 1-D
+        """
+        raise NotImplementedError

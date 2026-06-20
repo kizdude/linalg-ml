@@ -1,0 +1,24 @@
+# virtual environment
+.venv/
+
+# python caches
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# compiled C artifacts (built inside the submodule)
+*.dll
+*.so
+*.dylib
+
+# generated plots
+*.png
+
+# editor / OS
+.vscode/
+.idea/
+.DS_Store

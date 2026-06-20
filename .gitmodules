@@ -1,0 +1,3 @@
+[submodule "external/linalg-py"]
+	path = external/linalg-py
+	url = ../linalg-py
