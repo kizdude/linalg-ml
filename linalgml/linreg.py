@@ -41,27 +41,31 @@ class LinearRegression:
             X = np.hstack([ones, X])
         return X
 
-    # --- the part you implement: solve the normal equation with Matrix ---
+    # --- solve the normal equation with Matrix ---
     def fit(self, X, y) -> "LinearRegression":
-        """Fit weights solving (Xᵀ X) w = Xᵀ y.
+        """Fit weights solving (Xᵀ X) w = Xᵀ y."""
+        Xd = self._design(X)
+        y2 = np.asarray(y, float).reshape(-1, 1)
 
-        TODO (use the Matrix binding):
-          - Xd = self._design(X)                  # numpy design matrix
-          - y2 = np.asarray(y, float).reshape(-1, 1)
-          - wrap both as Matrix (Matrix.from_numpy)
-          - Xt = X.T;  XtX = Xt @ X;  Xty = Xt @ y
-          - solve XtX w = Xty   (use XtX.solve(Xty) — more stable than inverse)
-          - store self.weights, and split into self.intercept_ / self.coef_
-        Return self.
-        """
-        raise NotImplementedError
+        Xm = Matrix.from_numpy(Xd)
+        ym = Matrix.from_numpy(y2)
+
+        Xt = Xm.T
+        XtX = Xt @ Xm
+        Xty = Xt @ ym
+        w = XtX.solve(Xty)
+
+        self.weights = w
+        wn = w.to_numpy().flatten()
+        if self.fit_intercept:
+            self.intercept_ = float(wn[0])
+            self.coef_ = wn[1:]
+        else:
+            self.intercept_ = 0.0
+            self.coef_ = wn
+        return self
 
     def predict(self, X) -> np.ndarray:
-        """Return predictions X·w as a 1-D numpy array.
-
-        TODO:
-          - build the design matrix the same way as in fit()
-          - wrap as Matrix, multiply by self.weights
-          - return .to_numpy() flattened to 1-D
-        """
-        raise NotImplementedError
+        """Return predictions X·w as a 1-D numpy array."""
+        Xm = Matrix.from_numpy(self._design(X))
+        return (Xm @ self.weights).to_numpy().flatten()
